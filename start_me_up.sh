@@ -5,21 +5,78 @@
 # Author: Lenny Nilsson
 # Usage: ./set_me_up.sh
 
-say -v Daniel "Installing command line tools. This requires some user interaction."
+say -v Daniel "I don't want to be a product of my environment. I want my environment to be a product of me."
+
 sudo xcode-select --install
-say -v Daniel "Installing Homebrew"
+
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-say -v Daniel "Installing cask versions"
+
 brew tap caskroom/versions
-say -v Daniel "Installing Java 7 as a dependency for Docker"
 brew cask install java7
-say -v Daniel "Installing Docker"
 brew install docker
-say -v Daniel "Installing common tools and frameworks"
 brew install wget vim git node maven gradle android-sdk
-say -v Daniel "Installing common tools and frameworks from casks"
 brew cask install google-chrome android-studio textwrangler
-say -v Daniel "Updating the Android SDK. This requires some user interaction."
+
+# Update Android SDK
 android update sdk --no-ui --filter platform,platform-tool,tool
-say -v Daniel "All done! Thank you for waiting."
-printf "\n\nAll done! Thank you for waiting.\n\n"
+
+VM_OPTIONS=.studio.vmoptions
+ANDROID_STUDIO_ENV=android_studio_environment.sh
+
+cat > $HOME/$VM_OPTIONS << "EOL"
+-Xms1024m
+-Xmx4096m
+-XX:MaxPermSize=1024m
+-XX:ReservedCodeCacheSize=512m
+-XX:+UseCompressedOops
+EOL
+
+printf "VM_OPTIONS=$VM_OPTIONS\n" > $HOME/$ANDROID_STUDIO_ENV
+
+cat >> $HOME/$ANDROID_STUDIO_ENV << "EOL"
+
+# Setup Java version
+export JAVA_HOME=`/usr/libexec/java_home -v 1.7`
+
+# Export paths
+export ANT_HOME=/usr/local/opt/ant
+export MAVEN_HOME=/usr/local/opt/maven
+export GRADLE_HOME=/usr/local/opt/gradle
+export ANDROID_HOME=/usr/local/opt/android-sdk
+export ANDROID_NDK_HOME=/usr/local/opt/android-ndk
+
+# Setup AndroidStudio settings
+export STUDIO_VM_OPTIONS=$HOME/$VM_OPTIONS
+# Export STUDIO_PROPERTIES
+export STUDIO_JDK=$JAVA_HOME
+
+# Export Java binaries
+export PATH=$JAVA_HOME/bin:$PATH
+
+# Export Homebrew bin path
+export PATH=/usr/local/bin:$PATH
+# Export build systems
+export PATH=$ANT_HOME/bin:$PATH
+export PATH=$MAVEN_HOME/bin:$PATH
+export PATH=$GRADLE_HOME/bin:$PATH
+# Export Android build tools
+export PATH=$ANDROID_HOME/tools:$PATH
+export PATH=$ANDROID_HOME/platform-tools:$PATH
+export PATH=$ANDROID_HOME/build-tools/$(ls -tr $ANDROID_HOME/build-tools/ | tail -1):$PATH
+EOL
+
+include="\n# AndroidStudio environment includes\nsource \"\$HOME/$ANDROID_STUDIO_ENV\"\n"
+
+if [ -f "$HOME/.bashrc" ]; then
+    printf "$include" >> "$HOME/.bashrc"
+fi
+
+if [ -f "$HOME/.zshrc" ]; then
+    printf "$include" >> "$HOME/.zshrc"
+fi
+
+printf "\n\nThe file $HOME/$VM_OPTIONS contains all AndroidStudio settings.\n"
+printf "\nThe file $HOME/$ANDROID_STUDIO_ENV contains all environment variables.\n\n\n"
+
+say -v Daniel "Where we go from there is a choice I leave to you."
+printf "\n\nWhere we go from there is a choice I leave to you.\n\n"
