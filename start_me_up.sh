@@ -17,9 +17,6 @@ brew install docker
 brew install wget vim git node maven gradle android-sdk
 brew cask install google-chrome android-studio textwrangler
 
-# Update Android SDK
-android update sdk --no-ui --filter platform,platform-tool,tool
-
 VM_OPTIONS=.studio.vmoptions
 ANDROID_STUDIO_ENV=android_studio_environment.sh
 
@@ -65,18 +62,31 @@ export PATH=$ANDROID_HOME/platform-tools:$PATH
 export PATH=$ANDROID_HOME/build-tools/$(ls -tr $ANDROID_HOME/build-tools/ | tail -1):$PATH
 EOL
 
+# Include Environment variables for bash and zsh
 include="\n# AndroidStudio environment includes\nsource \"\$HOME/$ANDROID_STUDIO_ENV\"\n"
+printf "$include" >> "$HOME/.bashrc"
+printf "$include" >> "$HOME/.zshrc"
 
-if [ -f "$HOME/.bashrc" ]; then
-    printf "$include" >> "$HOME/.bashrc"
-fi
+#Show Path bar in Finder
+defaults write com.apple.finder ShowPathbar -bool true
 
-if [ -f "$HOME/.zshrc" ]; then
-    printf "$include" >> "$HOME/.zshrc"
-fi
+#Show Status bar in Finder
+defaults write com.apple.finder ShowStatusBar -bool true
+
+#Enable Safari’s debug menu
+defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
+
+#Add a context menu item for showing the Web Inspector in web views
+defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
+
+#Show the ~/Library folder
+chflags nohidden ~/Library
 
 printf "\n\nThe file $HOME/$VM_OPTIONS contains all AndroidStudio settings.\n"
 printf "\nThe file $HOME/$ANDROID_STUDIO_ENV contains all environment variables.\n\n\n"
 
-say -v Daniel "Where we go from there is a choice I leave to you."
 printf "\n\nWhere we go from there is a choice I leave to you.\n\n"
+say -v Daniel "Where we go from there is a choice I leave to you."
+
+# Update Android SDK
+android update sdk --no-ui --filter platform,platform-tool,tool
