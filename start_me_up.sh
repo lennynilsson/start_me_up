@@ -1,22 +1,34 @@
 #!/usr/bin/env bash
 
 # set_me_up.sh
-# Version: 0.0.1
+# Version: 0.1.0
 # Author: Lenny Nilsson
 # Usage: ./set_me_up.sh
 
 say -v Daniel "I don't want to be a product of my environment. I want my environment to be a product of me."
 
-sudo xcode-select --install
+# Download and install Command Line Tools
+if [[ ! -x /usr/bin/gcc ]]; then
+    xcode-select --install
+fi
 
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+# Download and install Homebrew
+if [[ ! -x /usr/local/bin/brew ]]; then
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
 
+# Tap versions
 brew tap caskroom/versions
 brew cask install java7
 brew install docker
-brew install wget vim git node maven gradle android-sdk
+brew install wget vim zsh git node maven gradle android-sdk
 brew cask install google-chrome android-studio textwrangler
 
+# Auto-complete for Homebrew
+brew install homebrew/completions/brew-cask-completion 
+brew install zsh-completions
+
+# File names
 VM_OPTIONS=.studio.vmoptions
 ANDROID_STUDIO_ENV=android_studio_environment.sh
 
@@ -62,10 +74,18 @@ export PATH=$ANDROID_HOME/platform-tools:$PATH
 export PATH=$ANDROID_HOME/build-tools/$(ls -tr $ANDROID_HOME/build-tools/ | tail -1):$PATH
 EOL
 
-# Include Environment variables for bash and zsh
-include="\n# AndroidStudio environment includes\nsource \"\$HOME/$ANDROID_STUDIO_ENV\"\n"
-printf "$include" >> "$HOME/.bashrc"
-printf "$include" >> "$HOME/.zshrc"
+# Privacy: don’t send search queries to Apple
+defaults write com.apple.Safari UniversalSearchEnabled -bool false
+defaults write com.apple.Safari SuppressSearchSuggestions -bool true
+
+# Avoid creating .DS_Store files on network volumes
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+
+# Finder: show all filename extensions
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+# Disable the warning when changing a file extension
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
 #Show Path bar in Finder
 defaults write com.apple.finder ShowPathbar -bool true
