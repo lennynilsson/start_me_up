@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # set_me_up.sh
-# Version: 0.1.0
+# Version: 0.1.2
 # Author: Lenny Nilsson
 # Usage: ./set_me_up.sh
 
-say -v Daniel "I don't want to be a product of my environment. I want my environment to be a product of me."
+printf "\n\nI don't want to be a product of my environment. I want my environment to be a product of me.\n\n"
 
 # Download and install Command Line Tools
 if [[ ! -x /usr/bin/gcc ]]; then
@@ -74,6 +74,11 @@ export PATH=$ANDROID_HOME/platform-tools:$PATH
 export PATH=$ANDROID_HOME/build-tools/$(ls -tr $ANDROID_HOME/build-tools/ | tail -1):$PATH
 EOL
 
+# Include Environment variables for bash and zsh
+include="\n# AndroidStudio environment includes\nsource \"\$HOME/$ANDROID_STUDIO_ENV\"\n"
+printf "$include" >> "$HOME/.bashrc"
+printf "$include" >> "$HOME/.zshrc"
+
 # Privacy: don’t send search queries to Apple
 defaults write com.apple.Safari UniversalSearchEnabled -bool false
 defaults write com.apple.Safari SuppressSearchSuggestions -bool true
@@ -102,11 +107,12 @@ defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 #Show the ~/Library folder
 chflags nohidden ~/Library
 
-printf "\n\nThe file $HOME/$VM_OPTIONS contains all AndroidStudio settings.\n"
-printf "\nThe file $HOME/$ANDROID_STUDIO_ENV contains all environment variables.\n\n\n"
-
-printf "\n\nWhere we go from there is a choice I leave to you.\n\n"
-say -v Daniel "Where we go from there is a choice I leave to you."
+printf "\n\nThe file $HOME/$VM_OPTIONS contains all AndroidStudio settings."
+printf "\nThe file $HOME/$ANDROID_STUDIO_ENV contains all environment variables."
+printf "\nAndroid SDK is located here: /usr/local/opt/android-sdk"
 
 # Update Android SDK
-android update sdk --no-ui --filter platform,platform-tool,tool
+printf "\n\nTo update android studio run this:\n"
+printf "android update sdk --no-ui --filter platform,platform-tool,tool\n\n"
+
+printf "\nWhere we go from there is a choice I leave to you.\n\n"
